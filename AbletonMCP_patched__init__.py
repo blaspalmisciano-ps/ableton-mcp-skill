@@ -776,13 +776,12 @@ class AbletonMCP(ControlSurface):
             
             clip_slot = track.clip_slots[clip_index]
             
-            if not clip_slot.has_clip:
-                raise Exception("No clip in slot")
-            
             clip_slot.fire()
-            
+
             result = {
-                "fired": True
+                "fired": True,
+                "had_clip": clip_slot.has_clip,
+                "recording": not clip_slot.has_clip
             }
             return result
         except Exception as e:

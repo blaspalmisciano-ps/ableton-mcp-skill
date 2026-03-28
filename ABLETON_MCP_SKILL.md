@@ -450,6 +450,35 @@ for i in range(30):
 | `set_track_monitor` | `track_index`, `state` (0=In, 1=Auto, 2=Off) | Use 0 (In) for live monitoring. |
 | `get_device_parameters` | `track_index`, `device_index` | Lists all params with name/value/min/max |
 | `set_device_parameter` | `track_index`, `device_index`, `param_name`, `value` | **WARNING: NOT all params are 0–1!** Check min/max. E.g. Compressor Output Gain is -36 to +36 dB. |
+| `get_clip_notes` | `track_index`, `clip_index` | Read MIDI notes back from a clip |
+| `start_recording` | none | Enables global session record mode |
+| `stop_recording` | none | Disables record mode |
+
+### Recording in Session View
+To record audio in Session View:
+1. Arm the tracks you want to record (`set_track_arm`)
+2. Set monitor to In (`set_track_monitor` state=0)
+3. Enable record mode (`start_recording`)
+4. Fire the drums clip (or any playback clip)
+5. Fire an **empty** clip slot on the armed tracks — this starts recording into that slot
+6. When done, call `stop_recording` then `stop_playback`
+
+```python
+# Example: record both guitars over drums
+ableton("set_track_arm", {"track_index": 1, "arm": True})
+ableton("set_track_arm", {"track_index": 2, "arm": True})
+ableton("set_track_monitor", {"track_index": 1, "state": 0})
+ableton("set_track_monitor", {"track_index": 2, "state": 0})
+ableton("start_recording", {})
+ableton("fire_clip", {"track_index": 0, "clip_index": 1})  # drums
+ableton("fire_clip", {"track_index": 1, "clip_index": 1})  # empty slot = records
+ableton("fire_clip", {"track_index": 2, "clip_index": 1})  # empty slot = records
+# ... user plays ...
+ableton("stop_recording", {})
+ableton("stop_playback")
+```
+
+**IMPORTANT:** `fire_clip` on an empty slot with record mode on = starts recording. The base AbletonMCP blocked empty slots — our patch removes that check.
 
 ---
 
