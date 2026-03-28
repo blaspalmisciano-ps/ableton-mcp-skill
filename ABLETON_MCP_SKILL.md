@@ -782,6 +782,8 @@ Drum notes are at pitches 36-49 (C1-C#2). After opening the clip, press **Cmd+A*
 | Loading drum kit replaces Drum Rack | Load kit BEFORE adding clips/notes |
 | Channel matching | Exact match ("2" == "2") before substring ("2" in "1/2") — patched |
 | All commands must run on main thread | Inside `main_thread_task` closure — dispatching outside HANGS |
+| Session clips override Arrangement | When Session clips are fired, Arrangement tracks go opaque/silent. Fix: **Playback → Back to Arrangement** (or the orange button in transport). This is the #1 reason recorded audio "disappears". |
+| Recording goes to Arrangement | When `start_recording` + `start_playback`, audio records into Arrangement timeline. Session `fire_clip` on empty slots records into Session clips. These are DIFFERENT places. |
 | Auto-OK dismisser | Requires terminal app in System Settings → Privacy → Accessibility |
 | Panning | Use `set_track_panning` (track mixer pan), NOT Utility Balance. Utility Balance doesn't work with stereo effects (reverb/chorus bleed into both speakers). |
 | Buffer size not in API | Must set manually: Preferences → Audio → Buffer Size. **Set to 128 — this is critical for live playing, eliminates perceived latency.** Default is too high and makes effects feel laggy. |
