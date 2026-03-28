@@ -229,6 +229,7 @@ class AbletonMCP(ControlSurface):
             elif command_type in ["create_midi_track", "create_audio_track", "delete_track",
                                  "set_track_name", "set_track_volume", "set_track_panning",
                                  "set_track_arm", "set_track_monitor", "set_track_solo", "set_track_mute",
+                                 "delete_clip",
                                  "set_device_parameter", "get_device_parameters", "get_clip_notes",
                                  "create_clip", "add_notes_to_clip", "set_clip_name",
                                  "set_tempo", "fire_clip", "stop_clip", "start_recording", "stop_recording",
@@ -291,6 +292,17 @@ class AbletonMCP(ControlSurface):
                             track = song.tracks[track_index]
                             track.mute = mute
                             result = {"track": str(track.name), "mute": mute}
+                        elif command_type == "delete_clip":
+                            track_index = params.get("track_index", 0)
+                            clip_index = params.get("clip_index", 0)
+                            song = self.song()
+                            track = song.tracks[track_index]
+                            clip_slot = track.clip_slots[clip_index]
+                            if clip_slot.has_clip:
+                                clip_slot.delete_clip()
+                                result = {"deleted": True, "track": track_index, "slot": clip_index}
+                            else:
+                                result = {"deleted": False, "message": "No clip in slot"}
                         elif command_type == "get_device_parameters":
                             track_index = params.get("track_index", 0)
                             device_index = params.get("device_index", 0)

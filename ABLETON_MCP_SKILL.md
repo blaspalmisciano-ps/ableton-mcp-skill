@@ -468,6 +468,7 @@ for i in range(30):
 | `set_track_monitor` | `track_index`, `state` (0=In, 1=Auto, 2=Off) | Use 0 (In) for live monitoring. |
 | `get_device_parameters` | `track_index`, `device_index` | Lists all params with name/value/min/max |
 | `set_device_parameter` | `track_index`, `device_index`, `param_name`, `value` | **WARNING: NOT all params are 0–1!** Check min/max. E.g. Compressor Output Gain is -36 to +36 dB. |
+| `delete_clip` | `track_index`, `clip_index` | Deletes a clip from a Session View slot. Note: does NOT delete Arrangement recordings — those must be selected + deleted manually in Arrangement View. |
 | `get_clip_notes` | `track_index`, `clip_index` | Read MIDI notes back from a clip |
 | `start_recording` | none | Enables global session record mode |
 | `stop_recording` | none | Disables record mode |
