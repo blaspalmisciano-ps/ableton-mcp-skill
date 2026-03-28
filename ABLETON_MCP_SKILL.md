@@ -7,7 +7,7 @@
 
 ## WHAT THE HUMAN DOES vs WHAT CLAUDE CODE DOES
 
-### The human does exactly 3 things:
+### The human does exactly 4 things:
 1. **Downloads Ableton Live 12 Trial** from ableton.com (free 30-day license, needs an account) and drags it to /Applications
 2. **Sets buffer size to 128** in Preferences → Audio → Buffer Size (critical for live playing — eliminates latency)
 3. **Selects "AbletonMCP"** in one dropdown inside Ableton Preferences (Cmd+, → Link, Tempo & MIDI → empty Control Surface row → AbletonMCP, Input: None, Output: None)
@@ -384,7 +384,13 @@ echo "Smart auto-dismisser running (PID $!)"
 4. On first launch, sign in with your Ableton account to activate the 30-day trial
 5. If macOS says "move to trash" — tell Claude Code and it will run: `sudo xattr -dr com.apple.quarantine "/Applications/Ableton Live 12 Trial.app"`
 
-**H2. Set buffer size to 128 (critical for live playing):**
+**H2. Set audio input device to Behringer UMC:**
+1. In Ableton: **Cmd + ,** (Preferences)
+2. **Audio** tab
+3. Set **Audio Input Device** to your Behringer UMC (NOT built-in microphone!)
+4. Without this, "Ext. In" routing will show no channels and Ableton records from the MacBook mic instead
+
+**H3. Set buffer size to 128 (critical for live playing):**
 1. In Ableton: **Cmd + ,** (Preferences)
 2. **Audio** tab
 3. Set **Buffer Size** to **128** (or 64 if your CPU handles it)
@@ -397,7 +403,16 @@ echo "Smart auto-dismisser running (PID $!)"
 4. Do NOT replace existing controllers (e.g., Keylab) — use the next empty row
 5. Close Preferences
 
-**That's it — 3 things.** Everything else is automated by Claude Code.
+**That's it — 4 things.** Everything else is automated by Claude Code.
+
+### Tuning workflow
+```python
+# Load tuner on guitar track (will go to end of chain — drag to front in UI)
+ableton("load_instrument_or_effect", {"track_index": 1, "uri": "query:AudioFx#Tuner"})
+# User: drag Tuner to FIRST position in chain (before Gate)
+# User: turn up UMC input gain if weak strings don't register
+# User: remove Tuner when done (or leave it — it's transparent)
+```
 
 ### Step 0I — Wait for connection and verify
 ```python
@@ -527,6 +542,7 @@ for i in range(info["result"]["track_count"] - 1, 0, -1):
 | Cabinet | `query:AudioFx#Cabinet` |
 | Limiter | `query:AudioFx#Limiter` |
 | Gate | `query:AudioFx#Gate` |
+| Tuner | `query:AudioFx#Tuner` |
 
 ### Drum Kits
 | Kit | URI |
@@ -764,6 +780,10 @@ Drum notes are at pitches 36-49 (C1-C#2). After opening the clip, press **Cmd+A*
 | Auto-OK dismisser | Requires terminal app in System Settings → Privacy → Accessibility |
 | No `set_panning` command | Use Utility device `Balance` param: -1=L, 0=center, 1=R |
 | Buffer size not in API | Must set manually: Preferences → Audio → Buffer Size. **Set to 128 — this is critical for live playing, eliminates perceived latency.** Default is too high and makes effects feel laggy. |
+| Devices always load at END of chain | Cannot reorder via API. Plan chain order before loading. For Tuner: load it first or drag to front manually. |
+| Tuner must be FIRST in chain | If placed after Gate, weak strings won't register. Drag to front of chain in Ableton UI after loading. |
+| UMC input gain matters | If strings don't register on Tuner or signal is weak, turn up the physical gain knob on the Behringer UMC. |
+| Audio input device must be set manually | Preferences → Audio → Audio Input Device → select Behringer UMC. Without this, Ableton falls back to MacBook mic and "Ext. In" shows no channels. |
 
 ---
 
