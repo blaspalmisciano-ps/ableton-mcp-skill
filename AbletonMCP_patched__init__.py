@@ -230,7 +230,7 @@ class AbletonMCP(ControlSurface):
                                  "set_track_name", "set_track_volume", "set_track_arm", "set_track_monitor",
                                  "set_device_parameter", "get_device_parameters", "get_clip_notes",
                                  "create_clip", "add_notes_to_clip", "set_clip_name",
-                                 "set_tempo", "fire_clip", "stop_clip",
+                                 "set_tempo", "fire_clip", "stop_clip", "start_recording", "stop_recording",
                                  "start_playback", "stop_playback",
                                  "load_instrument_or_effect", "load_browser_item",
                                  "set_track_input_routing", "get_track_routing_info"]:
@@ -359,6 +359,14 @@ class AbletonMCP(ControlSurface):
                             result = self._start_playback()
                         elif command_type == "stop_playback":
                             result = self._stop_playback()
+                        elif command_type == "start_recording":
+                            song = self.song()
+                            song.record_mode = 1
+                            result = {"recording": True}
+                        elif command_type == "stop_recording":
+                            song = self.song()
+                            song.record_mode = 0
+                            result = {"recording": False}
                         elif command_type == "load_instrument_or_effect":
                             track_index = params.get("track_index", 0)
                             uri = params.get("uri", "")
