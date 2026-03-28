@@ -227,7 +227,8 @@ class AbletonMCP(ControlSurface):
                 response["result"] = self._get_track_info(track_index)
             # Commands that modify Live's state should be scheduled on the main thread
             elif command_type in ["create_midi_track", "create_audio_track", "delete_track",
-                                 "set_track_name", "set_track_volume", "set_track_arm", "set_track_monitor",
+                                 "set_track_name", "set_track_volume", "set_track_panning",
+                                 "set_track_arm", "set_track_monitor", "set_track_solo", "set_track_mute",
                                  "set_device_parameter", "get_device_parameters", "get_clip_notes",
                                  "create_clip", "add_notes_to_clip", "set_clip_name",
                                  "set_tempo", "fire_clip", "stop_clip", "start_recording", "stop_recording",
@@ -255,6 +256,13 @@ class AbletonMCP(ControlSurface):
                             track = song.tracks[track_index]
                             track.mixer_device.volume.value = volume
                             result = {"track": str(track.name), "volume": volume}
+                        elif command_type == "set_track_panning":
+                            track_index = params.get("track_index", 0)
+                            panning = params.get("panning", 0.0)
+                            song = self.song()
+                            track = song.tracks[track_index]
+                            track.mixer_device.panning.value = panning
+                            result = {"track": str(track.name), "panning": panning}
                         elif command_type == "set_track_arm":
                             track_index = params.get("track_index", 0)
                             arm = params.get("arm", True)
@@ -269,6 +277,20 @@ class AbletonMCP(ControlSurface):
                             track = song.tracks[track_index]
                             track.current_monitoring_state = state
                             result = {"track": str(track.name), "monitor": state}
+                        elif command_type == "set_track_solo":
+                            track_index = params.get("track_index", 0)
+                            solo = params.get("solo", False)
+                            song = self.song()
+                            track = song.tracks[track_index]
+                            track.solo = solo
+                            result = {"track": str(track.name), "solo": solo}
+                        elif command_type == "set_track_mute":
+                            track_index = params.get("track_index", 0)
+                            mute = params.get("mute", False)
+                            song = self.song()
+                            track = song.tracks[track_index]
+                            track.mute = mute
+                            result = {"track": str(track.name), "mute": mute}
                         elif command_type == "get_device_parameters":
                             track_index = params.get("track_index", 0)
                             device_index = params.get("device_index", 0)

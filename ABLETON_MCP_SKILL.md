@@ -461,6 +461,9 @@ for i in range(30):
 | `set_track_input_routing` | `track_index`, `input_channel`, `input_type` | Sets both type and channel |
 | `get_track_routing_info` | `track_index` | Returns current + available routing |
 | `set_track_volume` | `track_index`, `volume` (0.0–1.0) | 0.85 is default, 1.0 is max |
+| `set_track_panning` | `track_index`, `panning` (-1.0 to 1.0) | -1=full left, 0=center, 1=full right. **Use this for panning, NOT Utility Balance** — track mixer pan is the final stage and works correctly with all effects. |
+| `set_track_solo` | `track_index`, `solo` (true/false) | Solo a track (mutes all others). Check for accidental solos if tracks go silent! |
+| `set_track_mute` | `track_index`, `mute` (true/false) | Mute/unmute a track |
 | `set_track_arm` | `track_index`, `arm` (true/false) | Must arm to hear live input. Ableton's exclusive arm will disarm others — arm all via API in sequence. |
 | `set_track_monitor` | `track_index`, `state` (0=In, 1=Auto, 2=Off) | Use 0 (In) for live monitoring. |
 | `get_device_parameters` | `track_index`, `device_index` | Lists all params with name/value/min/max |
@@ -699,15 +702,16 @@ ableton("set_device_parameter", {"track_index": 1, "device_index": 2, "param_nam
 ableton("set_device_parameter", {"track_index": 1, "device_index": 3, "param_name": "Threshold", "value": 0.5})
 ableton("set_device_parameter", {"track_index": 1, "device_index": 3, "param_name": "Ratio", "value": 0.75})
 ableton("set_device_parameter", {"track_index": 1, "device_index": 3, "param_name": "Output Gain", "value": 20.0})
-# Utility[4]: pan LEFT, gain boost
-ableton("set_device_parameter", {"track_index": 1, "device_index": 4, "param_name": "Balance", "value": -0.5})
+# Utility[4]: gain boost (panning done via track mixer, NOT here)
 ableton("set_device_parameter", {"track_index": 1, "device_index": 4, "param_name": "Gain", "value": 0.7})
 # Amp[5]: chunky overdrive
 ableton("set_device_parameter", {"track_index": 1, "device_index": 5, "param_name": "Gain", "value": 0.7})
 ableton("set_device_parameter", {"track_index": 1, "device_index": 5, "param_name": "Volume", "value": 1.0})
+# TRACK PAN — full left
+ableton("set_track_panning", {"track_index": 1, "panning": -1.0})
 
 # =======================================================
-# [2] GUITAR R — Shiny/sparkly, panned RIGHT 50%
+# [2] GUITAR R — Shiny/sparkly, panned RIGHT 100%
 # =======================================================
 ableton("create_audio_track", {"index": -1})
 ableton("set_track_name", {"track_index": 2, "name": "🎸 Guitar R (Mid/Robust)"})
@@ -730,13 +734,14 @@ ableton("set_device_parameter", {"track_index": 2, "device_index": 2, "param_nam
 ableton("set_device_parameter", {"track_index": 2, "device_index": 3, "param_name": "Threshold", "value": 0.5})
 ableton("set_device_parameter", {"track_index": 2, "device_index": 3, "param_name": "Ratio", "value": 0.75})
 ableton("set_device_parameter", {"track_index": 2, "device_index": 3, "param_name": "Output Gain", "value": 20.0})
-# Utility[4]: pan RIGHT, gain boost
-ableton("set_device_parameter", {"track_index": 2, "device_index": 4, "param_name": "Balance", "value": 0.5})
+# Utility[4]: gain boost (panning done via track mixer, NOT here)
 ableton("set_device_parameter", {"track_index": 2, "device_index": 4, "param_name": "Gain", "value": 0.7})
 # Amp[5]: clean bell-like
 ableton("set_device_parameter", {"track_index": 2, "device_index": 5, "param_name": "Gain", "value": 0.4})
 ableton("set_device_parameter", {"track_index": 2, "device_index": 5, "param_name": "Volume", "value": 1.0})
 # Chorus[6]: shimmer width (on by default)
+# TRACK PAN — full right
+ableton("set_track_panning", {"track_index": 2, "panning": 1.0})
 
 # =======================================================
 # [3] BASS — clean, input ch 1
@@ -778,7 +783,7 @@ Drum notes are at pitches 36-49 (C1-C#2). After opening the clip, press **Cmd+A*
 | Channel matching | Exact match ("2" == "2") before substring ("2" in "1/2") — patched |
 | All commands must run on main thread | Inside `main_thread_task` closure — dispatching outside HANGS |
 | Auto-OK dismisser | Requires terminal app in System Settings → Privacy → Accessibility |
-| No `set_panning` command | Use Utility device `Balance` param: -1=L, 0=center, 1=R |
+| Panning | Use `set_track_panning` (track mixer pan), NOT Utility Balance. Utility Balance doesn't work with stereo effects (reverb/chorus bleed into both speakers). |
 | Buffer size not in API | Must set manually: Preferences → Audio → Buffer Size. **Set to 128 — this is critical for live playing, eliminates perceived latency.** Default is too high and makes effects feel laggy. |
 | Devices always load at END of chain | Cannot reorder via API. Plan chain order before loading. For Tuner: load it first or drag to front manually. |
 | Tuner must be FIRST in chain | If placed after Gate, weak strings won't register. Drag to front of chain in Ableton UI after loading. |
