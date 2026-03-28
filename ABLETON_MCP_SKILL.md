@@ -760,13 +760,26 @@ ableton("set_device_parameter", {"track_index": 2, "device_index": 5, "param_nam
 ableton("set_track_panning", {"track_index": 2, "panning": 1.0})
 
 # =======================================================
-# [3] BASS — clean, input ch 1
+# [3] BASS — clean with presence, input ch 1
 # =======================================================
 ableton("create_audio_track", {"index": -1})
 ableton("set_track_name", {"track_index": 3, "name": "🎵 Bass"})
+ableton("load_instrument_or_effect", {"track_index": 3, "uri": "query:AudioFx#Tuner"})
 ableton("load_instrument_or_effect", {"track_index": 3, "uri": "query:AudioFx#EQ%20Eight"})
+ableton("load_instrument_or_effect", {"track_index": 3, "uri": "query:AudioFx#Compressor"})
 ableton("set_track_input_routing", {"track_index": 3, "input_type": "Ext. In", "input_channel": 1})
-ableton("set_track_volume", {"track_index": 3, "volume": 1.0})
+ableton("set_track_volume", {"track_index": 3, "volume": 0.85})
+# EQ[1]: clean low boost, mud cut, presence, high cut (avoid distortion — keep boosts moderate!)
+ableton("set_device_parameter", {"track_index": 3, "device_index": 1, "param_name": "1 Gain A", "value": 2.0})
+ableton("set_device_parameter", {"track_index": 3, "device_index": 1, "param_name": "2 Gain A", "value": 1.5})
+ableton("set_device_parameter", {"track_index": 3, "device_index": 1, "param_name": "3 Gain A", "value": -3.0})
+ableton("set_device_parameter", {"track_index": 3, "device_index": 1, "param_name": "5 Gain A", "value": 1.5})
+ableton("set_device_parameter", {"track_index": 3, "device_index": 1, "param_name": "7 Gain A", "value": -5.0})
+# Compressor[2]: tame peaks, clean output
+ableton("set_device_parameter", {"track_index": 3, "device_index": 2, "param_name": "Threshold", "value": 0.35})
+ableton("set_device_parameter", {"track_index": 3, "device_index": 2, "param_name": "Ratio", "value": 0.7})
+ableton("set_device_parameter", {"track_index": 3, "device_index": 2, "param_name": "Output Gain", "value": 6.0})
+# NOTE: Drag Tuner to front of chain in Ableton UI
 
 # =======================================================
 # ARM + MONITOR + PLAY
@@ -777,6 +790,16 @@ for idx in [1, 2, 3]:
 ableton("fire_clip", {"track_index": 0, "clip_index": 0})
 print("Indie rock session built! 140 BPM, Plymouth Kit, all armed.")
 ```
+
+### After building — set monitor to Auto for playback:
+```python
+# CRITICAL: Set monitor to Auto on ALL audio tracks so recorded clips play back
+for idx in [1, 2, 3]:
+    ableton("set_track_monitor", {"track_index": idx, "state": 1})  # 1 = Auto
+```
+
+### Tuner on all audio tracks:
+Tuner is loaded on Guitar L, Guitar R, and Bass. It loads at end of chain — **drag to front in Ableton UI** so it reads the clean signal before effects.
 
 ### Note on Plymouth Kit:
 Plymouth Kit (`Racks/Drum Racks/Acoustic/Plymouth Kit.adg`) cannot be loaded via the MCP URI system — the user must drag it from Ableton's browser (Drums → Drum Rack → Acoustic → Plymouth Kit) onto track 0. Everything else is automated. If Plymouth Kit is unavailable, use 909 Core Kit (`query:Drums#FileId_5447`) as fallback.
