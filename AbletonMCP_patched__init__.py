@@ -233,6 +233,7 @@ class AbletonMCP(ControlSurface):
                                  "set_device_parameter", "get_device_parameters", "get_clip_notes",
                                  "create_clip", "add_notes_to_clip", "set_clip_name",
                                  "set_tempo", "fire_clip", "stop_clip", "start_recording", "stop_recording",
+                                 "back_to_arrangement",
                                  "start_playback", "stop_playback",
                                  "load_instrument_or_effect", "load_browser_item",
                                  "set_track_input_routing", "get_track_routing_info"]:
@@ -401,6 +402,14 @@ class AbletonMCP(ControlSurface):
                             song = self.song()
                             song.record_mode = 0
                             result = {"recording": False}
+                        elif command_type == "back_to_arrangement":
+                            song = self.song()
+                            # Stop all session clips on all tracks
+                            for track in song.tracks:
+                                track.stop_all_clips()
+                            # Trigger back to arranger
+                            song.back_to_arranger = False
+                            result = {"back_to_arrangement": True}
                         elif command_type == "load_instrument_or_effect":
                             track_index = params.get("track_index", 0)
                             uri = params.get("uri", "")

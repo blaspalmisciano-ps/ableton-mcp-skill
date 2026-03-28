@@ -28,6 +28,21 @@
 
 ---
 
+## RULE: SCREENSHOT FIRST
+
+**Before doing ANYTHING when the user reports an issue, ALWAYS screenshot Ableton first:**
+```bash
+osascript -e 'tell application "Ableton Live 12 Trial" to activate' && sleep 0.5 && screencapture -x /tmp/ableton_state.png
+```
+Then read the screenshot to understand the visual state before running commands. The DAW's visual state (opaque tracks, armed buttons, solo indicators) tells you more than the API.
+
+**After ANY command that fires session clips or changes track state, ALWAYS run Back to Arrangement:**
+```bash
+osascript -e 'tell application "System Events" to tell process "Live" to click menu item "Back to Arrangement" of menu 1 of menu bar item "Playback" of menu bar 1'
+```
+
+---
+
 ## HOW THIS WORKS
 
 Claude Code talks to Ableton Live directly via TCP socket on `localhost:9877`. The AbletonMCP Remote Script runs inside Ableton and listens for JSON commands. No MCP server or Claude Desktop needed.
@@ -465,7 +480,7 @@ for i in range(30):
 | `set_track_solo` | `track_index`, `solo` (true/false) | Solo a track (mutes all others). Check for accidental solos if tracks go silent! |
 | `set_track_mute` | `track_index`, `mute` (true/false) | Mute/unmute a track |
 | `set_track_arm` | `track_index`, `arm` (true/false) | Must arm to hear live input. Ableton's exclusive arm will disarm others — arm all via API in sequence. |
-| `set_track_monitor` | `track_index`, `state` (0=In, 1=Auto, 2=Off) | Use 0 (In) for live monitoring. |
+| `set_track_monitor` | `track_index`, `state` (0=In, 1=Auto, 2=Off) | **CRITICAL: Use 1 (Auto) for playback + recording. In=only live input (clips won't play!). Auto=plays clips when not armed, passes live input when armed. Set to In ONLY while actively playing live, switch to Auto for playback/mixing.** |
 | `get_device_parameters` | `track_index`, `device_index` | Lists all params with name/value/min/max |
 | `set_device_parameter` | `track_index`, `device_index`, `param_name`, `value` | **WARNING: NOT all params are 0–1!** Check min/max. E.g. Compressor Output Gain is -36 to +36 dB. |
 | `delete_clip` | `track_index`, `clip_index` | Deletes a clip from a Session View slot. Note: does NOT delete Arrangement recordings — those must be selected + deleted manually in Arrangement View. |
@@ -783,7 +798,8 @@ Drum notes are at pitches 36-49 (C1-C#2). After opening the clip, press **Cmd+A*
 | Loading drum kit replaces Drum Rack | Load kit BEFORE adding clips/notes |
 | Channel matching | Exact match ("2" == "2") before substring ("2" in "1/2") — patched |
 | All commands must run on main thread | Inside `main_thread_task` closure — dispatching outside HANGS |
-| Session clips override Arrangement | When Session clips are fired, Arrangement tracks go opaque/silent. Fix: **Playback → Back to Arrangement** (or the orange button in transport). This is the #1 reason recorded audio "disappears". |
+| **Monitor In vs Auto** | **THE #1 CAUSE OF "can't hear recorded track".** Monitor=In ONLY passes live input — recorded clips are SILENT. Monitor=Auto plays clips AND passes live input when armed. **ALWAYS set to Auto after recording. ALWAYS set to Auto for playback/mixing.** Only use In while actively playing live. |
+| Session clips override Arrangement | When Session clips are fired, Arrangement tracks go opaque/silent. Fix: **Playback → Back to Arrangement** (or the orange button in transport). |
 | Recording goes to Arrangement | When `start_recording` + `start_playback`, audio records into Arrangement timeline. Session `fire_clip` on empty slots records into Session clips. These are DIFFERENT places. |
 | Auto-OK dismisser | Requires terminal app in System Settings → Privacy → Accessibility |
 | Panning | Use `set_track_panning` (track mixer pan), NOT Utility Balance. Utility Balance doesn't work with stereo effects (reverb/chorus bleed into both speakers). |
