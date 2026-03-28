@@ -791,7 +791,7 @@ Drum notes are at pitches 36-49 (C1-C#2). After opening the clip, press **Cmd+A*
 | Devices always load at END of chain | Cannot reorder via API. Plan chain order before loading. For Tuner: load it first or drag to front manually. |
 | Tuner must be FIRST in chain | If placed after Gate, weak strings won't register. Drag to front of chain in Ableton UI after loading. |
 | UMC input gain matters | If strings don't register on Tuner or signal is weak, turn up the physical gain knob on the Behringer UMC. |
-| Audio input device must be set manually | Preferences → Audio → Audio Input Device → select Behringer UMC. Without this, Ableton falls back to MacBook mic and "Ext. In" shows no channels. |
+| Audio input device RESETS on every restart | Preferences → Audio → Audio Input Device → select Behringer UMC. **Must be done EVERY TIME Ableton restarts.** Without this, "Ext. In" shows no channels and guitars are silent. This is the #1 cause of "can't hear guitar" issues. |
 
 ---
 
