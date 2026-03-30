@@ -839,6 +839,7 @@ Drum notes are at pitches 36-49 (C1-C#2). After opening the clip, press **Cmd+A*
 | Style | BPM | Kit | Tracks | Character |
 |---|---|---|---|---|
 | **Indie Rock** | 140 | Plymouth Kit (acoustic) | Drums, Guitar L (robust/left), Guitar R (shiny/right), Bass | Garage feel, 16th hi-hats, ghost notes, panned guitars, Compressor +20dB, Gate for noise |
+| **90s Rap (G-Funk)** | 92 | 808 Core Kit | Drums, Bass (Stevie Wonder groove), Keys (smooth chords), Guitar L (audio), Clapton Guitar (MIDI) | West coast bounce, deep sub bass with ghost notes + octave jumps + chromatic approaches, Clapton-style bright minimal lead, Em-Am progression |
 
 ---
 
