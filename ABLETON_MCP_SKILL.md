@@ -821,6 +821,8 @@ Drum notes are at pitches 36-49 (C1-C#2). After opening the clip, press **Cmd+A*
 | Loading drum kit replaces Drum Rack | Load kit BEFORE adding clips/notes |
 | Channel matching | Exact match ("2" == "2") before substring ("2" in "1/2") — patched |
 | All commands must run on main thread | Inside `main_thread_task` closure — dispatching outside HANGS |
+| **Drum velocities must NEVER be uniform** | Always humanize drums: randomize velocity (+/-10-15) and micro-timing (+/-20ms) on snare, kick, and hats. Robotic drums sound awful. Apply humanization on EVERY drum pattern you create. |
+| **add_notes_to_clip OVERWRITES, does NOT append** | Calling add_notes_to_clip replaces ALL notes in the clip. To add a single note (like a crash), you must read ALL existing notes first, add the new note to the list, then write everything back. NEVER call add_notes_to_clip with just the new notes — you'll lose the entire pattern. |
 | **Monitor In vs Auto** | **THE #1 CAUSE OF "can't hear recorded track".** Monitor=In ONLY passes live input — recorded clips are SILENT. Monitor=Auto plays clips AND passes live input when armed. **ALWAYS set to Auto after recording. ALWAYS set to Auto for playback/mixing.** Only use In while actively playing live. |
 | Session clips override Arrangement | When Session clips are fired, Arrangement tracks go opaque/silent. Fix: **Playback → Back to Arrangement** (or the orange button in transport). |
 | Recording goes to Arrangement | When `start_recording` + `start_playback`, audio records into Arrangement timeline. Session `fire_clip` on empty slots records into Session clips. These are DIFFERENT places. |
